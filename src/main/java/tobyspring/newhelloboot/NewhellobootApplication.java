@@ -1,5 +1,6 @@
 package tobyspring.newhelloboot;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
@@ -24,27 +25,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Configuration
-@ComponentScan //@Componenet가 붙은 클래스를 모두 스캔하여 Bean으로 등록함, 편리해서 가장 보편적인 방법
+@ComponentScan
 public class NewhellobootApplication {
+	@Bean
+	public ServletWebServerFactory servletWebServerFactory(){
+		return new TomcatServletWebServerFactory();
+	}
 
+	@Bean
+	public DispatcherServlet dispatcherServlet(){
+		return new DispatcherServlet();
+	}
+
+
+	//onRefresh 초기화하면서 실행되는 서블릿들도 자바 코드로 Bean 등록해주기
 	public static void main(String[] args) {
-		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext(){
-			@Override
-			protected void onRefresh() {
-				super.onRefresh();
-
-				ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
-				WebServer webServer = serverFactory.getWebServer(servletContext -> {
-					servletContext.addServlet("dispatcherServlet", //GenericWebApplicationContext 을 사용해야 함
-							new DispatcherServlet(this)
-					).addMapping("/*"); //모든 요청을 다 받게 변경
-				});
-				webServer.start();
-			}
-		};
-		applicationContext.register(NewhellobootApplication.class);
-		applicationContext.refresh();
-
+		SpringApplication.run(NewhellobootApplication.class, args);
 	}
 
 }
