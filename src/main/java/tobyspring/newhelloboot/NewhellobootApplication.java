@@ -21,19 +21,25 @@ import java.io.IOException;
 public class NewhellobootApplication {
 
 	public static void main(String[] args) {
-		GenericWebApplicationContext applicationContext = new GenericWebApplicationContext();
+		GenericWebApplicationContext applicationContext = new GenericWebApplicationContext(){
+			@Override
+			protected void onRefresh() {
+				super.onRefresh();
+
+				ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
+				WebServer webServer = serverFactory.getWebServer(servletContext -> {
+					servletContext.addServlet("dispatcherServlet", //GenericWebApplicationContext 을 사용해야 함
+							new DispatcherServlet(this)
+					).addMapping("/*"); //모든 요청을 다 받게 변경
+				});
+				webServer.start();
+			}
+		};
 		applicationContext.registerBean(HelloController.class);
 		applicationContext.registerBean(SimpleHelloService.class);
 		applicationContext.refresh();
 
 
-		ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
-		WebServer webServer = serverFactory.getWebServer(servletContext -> {
-			servletContext.addServlet("dispatcherServlet", //GenericWebApplicationContext 을 사용해야 함
-				new DispatcherServlet(applicationContext)
-				).addMapping("/*"); //모든 요청을 다 받게 변경
-		});
-		webServer.start();
 
 	}
 
