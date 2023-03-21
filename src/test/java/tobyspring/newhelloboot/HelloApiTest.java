@@ -32,4 +32,17 @@ public class HelloApiTest {
         assertThat(res.getBody()).isEqualTo("Hello Spring");
 
     }
+
+
+    //http 요청을 직접 보내서 응답을 받아 예외 상황을 테스트 해보기
+    @Test
+    void failHelloApi(){
+
+        TestRestTemplate rest = new TestRestTemplate();
+
+        ResponseEntity<String> res = rest.getForEntity("http://localhost:8080/hello?name=", String.class, "Spring");
+
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
 }

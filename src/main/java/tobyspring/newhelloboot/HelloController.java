@@ -13,16 +13,17 @@ import java.util.Objects;
 public class HelloController {
 
         private final HelloService helloService ;
-        private final ApplicationContext applicationContext;
+//        private final ApplicationContext applicationContext;
 
-        public HelloController(HelloService helloService, ApplicationContext applicationContext){
+        public HelloController(HelloService helloService){
             this.helloService = helloService;
-            this.applicationContext = applicationContext;
+//            this.applicationContext = applicationContext;
         }
 
         @GetMapping("/hello")
 //        @RequestMapping(value="/hello", method = RequestMethod.GET)
         public String hello(String name){ //String으로 리턴하면 디스패처 서블릿은 뷰를 찾음..
-            return helloService.sayHello(Objects.requireNonNull(name)); // null 이면 에러, 아니면 리턴
+            if(name==null || name.trim().length()==0) throw new IllegalArgumentException();
+            return helloService.sayHello(name); // null 이면 에러, 아니면 리턴
     }
 }
